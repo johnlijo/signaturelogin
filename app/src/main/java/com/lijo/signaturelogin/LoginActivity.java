@@ -173,10 +173,10 @@ public class LoginActivity extends AppCompatActivity {
 
         String username = et_login_username.getText().toString();
         String password = String.valueOf(contentValues);
-        if (!dbHelper.logUser(username, password)) {
+        if (dbHelper.logUser(username, password)) {
             Toast.makeText(getApplicationContext(), "Login success", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Login failed ", Toast.LENGTH_LONG).show();
         }
 
     }
