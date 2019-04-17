@@ -65,4 +65,26 @@ public class DbHelper extends SQLiteOpenHelper {
 
         return false;
     }
+
+    public boolean logUser(String user, String password) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, //Table to query
+                new String[]{KEY_ID},                    //columns to return
+                COLUMN_USER + " = ?" + " AND " + COLUMN_PASSWORD + " = ?",                  //columns for the WHERE clause
+                new String[]{user, password},              //The values for the WHERE clause
+                null,                       //group the rows
+                null,                       //filter by row groups
+                null);                      //The sort order
+
+        int cursorCount = cursor.getCount();
+
+        cursor.close();
+        db.close();
+        if (cursorCount > 0) {
+            return true;
+        }
+
+        return false;
+    }
 }

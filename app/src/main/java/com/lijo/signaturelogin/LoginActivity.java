@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -30,6 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     signature signature;
     Bitmap bitmap;
     ContentValues contentValues;
+    DbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,8 +169,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void loginUser() {
+        dbHelper = new DbHelper(getApplicationContext());
+
         String username = et_login_username.getText().toString();
-        
+        String password = String.valueOf(contentValues);
+        if (!dbHelper.logUser(username, password)) {
+            Toast.makeText(getApplicationContext(), "Login success", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Login failed", Toast.LENGTH_LONG).show();
+        }
+
     }
 
 }
