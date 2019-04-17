@@ -1,5 +1,6 @@
 package com.lijo.signaturelogin;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -18,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 
 public class LoginActivity extends AppCompatActivity {
@@ -27,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
     private Button btn_login;
     signature signature;
     Bitmap bitmap;
+    ContentValues contentValues;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,20 +80,12 @@ public class LoginActivity extends AppCompatActivity {
             if (bitmap == null) {
                 bitmap = Bitmap.createBitmap(login_canvas.getWidth(), login_canvas.getHeight(), Bitmap.Config.RGB_565);
             }
-            Canvas canvas = new Canvas(bitmap);
-            try {
-                // Output the file
-                FileOutputStream mFileOutStream = new FileOutputStream(StoredPath);
-                v.draw(canvas);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+            byte[] img = bos.toByteArray();
 
-                // Convert the output file to Image such as .png
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, mFileOutStream);
-                mFileOutStream.flush();
-                mFileOutStream.close();
-
-            } catch (Exception e) {
-                Log.v("log_tag", e.toString());
-            }
+            contentValues = new ContentValues();
+            contentValues.put("image", img);
 
         }
 
@@ -171,7 +167,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void loginUser() {
-
+        String username = et_login_username.getText().toString();
+        
     }
 
 }

@@ -8,13 +8,17 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 1;
-    public static final String DATABASE_NAME = "CakeDb.db";
+    public static final String DATABASE_NAME = "UserDb.db";
+    public static final String TABLE_NAME = "users";
+    public static final String KEY_ID = "id";
+    public static final String COLUMN_USER= "username";
+    public static final String COLUMN_PASSWORD = "paassword";
 
     private static final String SQL_CREATE_USERS =
-            "CREATE TABLE " + UserContents.UserEntry.TABLE_NAME + " (" +
-                    UserContents.UserEntry._ID + " INTEGER PRIMARY KEY," +
-                    UserContents.UserEntry.COLUMN_USER + " TEXT," +
-                    UserContents.UserEntry.COLUMN_PASSWORD + " TEXT)";
+            "CREATE TABLE " +TABLE_NAME + " (" +
+                    KEY_ID + " INTEGER PRIMARY KEY," +
+                    COLUMN_USER + " TEXT UNIQUE," +
+                    COLUMN_PASSWORD + " TEXT)";
 
 
     public DbHelper(Context context) {
@@ -33,16 +37,32 @@ public class DbHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
+
     public boolean addUser(String name, String password) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(UserContents.UserEntry.COLUMN_USER, name);
-        contentValues.put(UserContents.UserEntry.COLUMN_PASSWORD, password);
+        contentValues.put(COLUMN_USER, name);
+        contentValues.put(COLUMN_PASSWORD, password);
         SQLiteDatabase db = getWritableDatabase();
-        return db.insert(UserContents.UserEntry.TABLE_NAME, null, contentValues) != -1;
+        return db.insert(TABLE_NAME, null, contentValues) != -1;
     }
 
     public Cursor getAllUsers() {
         SQLiteDatabase db = getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + UserContents.UserEntry.TABLE_NAME, null);
+        return db.rawQuery("SELECT * FROM " + TABLE_NAME, null);
+    }
+
+    public boolean isUserExists(String user) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_NAME,
+                new String[]{KEY_ID, COLUMN_USER, COLUMN_USER, COLUMN_PASSWORD},
+                COLUMN_USER + "=?",
+                new String[]{user},
+                null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()&& cursor.getCount()>0) {
+            return true;
+        }
+
+        return false;
     }
 }

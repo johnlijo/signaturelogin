@@ -1,7 +1,10 @@
 package com.lijo.signaturelogin;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -20,6 +23,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.security.Signature;
 
@@ -31,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText et_reg_username;
     private Button btn_reg;
     DbHelper dbHelper;
+    ContentValues contentValues;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,21 +86,12 @@ public class RegisterActivity extends AppCompatActivity {
             if (bitmap == null) {
                 bitmap = Bitmap.createBitmap(ll_canvas.getWidth(), ll_canvas.getHeight(), Bitmap.Config.RGB_565);
             }
-            Canvas canvas = new Canvas(bitmap);
-            try {
-                // Output the file
-                FileOutputStream mFileOutStream = new FileOutputStream(StoredPath);
-                v.draw(canvas);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+            byte[] img = bos.toByteArray();
 
-                // Convert the output file to Image such as .png
-                bitmap.compress(Bitmap.CompressFormat.PNG, 90, mFileOutStream);
-                mFileOutStream.flush();
-                mFileOutStream.close();
-
-            } catch (Exception e) {
-                Log.v("log_tag", e.toString());
-            }
-
+            contentValues = new ContentValues();
+            contentValues.put("image", img);
         }
 
         // Trace lines
@@ -177,6 +173,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void registerUser() {
 
+        int flag = 0;
         if (et_reg_username.getText().toString().isEmpty()) {
             et_reg_username.setError("Field empty");
             et_reg_username.requestFocus();
@@ -184,12 +181,16 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         String strUsename = et_reg_username.getText().toString();
-        if ((Boolean) dbHelper.addUser(strUsename, "password")) {
-            et_reg_username.setText("");
-            Toast.makeText(getApplicationContext(), "User registered successfully", Toast.LENGTH_SHORT).show();
+        if (!dbHelper.isUserExists(strUsename)) {
+            if ((Boolean) dbHelper.addUser(strUsename, String.valueOf(contentValues))) {
+                et_reg_username.setText("");
+                Toast.makeText(getApplicationContext(), "User registered successfully", Toast.LENGTH_SHORT).show();
+            } else
+                Toast.makeText(getApplicationContext(), "Registration failed", Toast.LENGTH_SHORT).show();
         }
-        else
-            Toast.makeText(getApplicationContext(), "Registration failed", Toast.LENGTH_SHORT).show();
+        else {
+            Toast.makeText(getApplicationContext(), "User exists", Toast.LENGTH_LONG).show();
+        }
     }
 
 }
